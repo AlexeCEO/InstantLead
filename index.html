@@ -9,7 +9,7 @@
     * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { background-color: #0b0f17; color: #ffffff; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
     .container { width: 100%; max-width: 480px; }
-    .card { background-color: #121826; border: 1px solid #1f293d; border-radius: 12px; padding: 24px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+    .card { background-color: #121826; border: 1px solid #1f293d; border-radius: 12px; padding: 24px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); margin-bottom: 16px; }
     h2, h3 { margin-top: 0; color: #ffffff; }
     p { color: #94a3b8; font-size: 14px; line-height: 1.5; }
     .form-group { margin-bottom: 16px; }
@@ -20,6 +20,7 @@
     .btn:hover { background-color: #4f46e5; }
     .btn-secondary { background-color: #1a2332; color: #94a3b8; border: 1px solid #2a364f; margin-top: 12px; }
     .btn-secondary:hover { background-color: #2a364f; color: #ffffff; }
+    .embed-box { background-color: #0d1117; border: 1px solid #30363d; border-radius: 8px; padding: 12px; font-family: monospace; font-size: 12px; color: #a5d6ff; word-break: break-all; margin: 12px 0; }
     .hidden { display: none !important; }
     .status-msg { margin-top: 12px; font-size: 14px; text-align: center; }
   </style>
@@ -76,13 +77,24 @@
     </div>
 
     <!-- DASHBOARD VIEW -->
-    <div id="dashboard-view" class="card hidden">
-      <h2>Incoming Leads</h2>
-      <p>Manage warm leads requesting immediate callbacks.</p>
-      <div id="leads-list">
-        <p>No leads received yet.</p>
+    <div id="dashboard-view" class="hidden">
+      <!-- EMBED CODE CARD -->
+      <div class="card">
+        <h3>⚡ Your Embed Code</h3>
+        <p>Copy and paste this 1-line script into your website before the closing &lt;/body&gt; tag to enable the callback button:</p>
+        <div class="embed-box" id="embed-code">&lt;script src="https://alexeceo.github.io/InstantLead/widget.js"&gt;&lt;/script&gt;</div>
+        <button id="copy-btn" class="btn btn-secondary">Copy Embed Code</button>
       </div>
-      <button id="logout-btn" class="btn btn-secondary">Log Out</button>
+
+      <!-- INCOMING LEADS CARD -->
+      <div class="card">
+        <h3>Incoming Leads</h3>
+        <p>Manage warm leads requesting immediate callbacks.</p>
+        <div id="leads-list">
+          <p>No leads received yet.</p>
+        </div>
+        <button id="logout-btn" class="btn btn-secondary">Log Out</button>
+      </div>
     </div>
   </div>
 
@@ -121,7 +133,18 @@
       dashboardView.classList.add('hidden');
       leadView.classList.remove('hidden');
     });
+
+    // Copy Embed Code
+    document.getElementById('copy-btn').addEventListener('click', () => {
+      const codeText = '<script src="https://alexeceo.github.io/InstantLead/widget.js"><' + '/script>';
+      navigator.clipboard.writeText(codeText).then(() => {
+        const btn = document.getElementById('copy-btn');
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = 'Copy Embed Code'; }, 2000);
+      });
+    });
   </script>
 
 </body>
-</html>
+       </html>
+       
