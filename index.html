@@ -3,29 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>InstantLead - Business Dashboard</title>
+  <title>InstantLead - Lead Capture SaaS</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { background-color: #0b0f17; color: #ffffff; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
     .container { width: 100%; max-width: 480px; }
-    .card { background-color: #121826; border: 1px solid #1f293d; border-radius: 12px; padding: 24px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); margin-bottom: 16px; }
+    .card { background-color: #121826; border: 1px solid #1f293d; border-radius: 12px; padding: 28px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); margin-bottom: 16px; }
+    .brand-header { text-align: center; margin-bottom: 24px; }
+    .brand-header h1 { margin: 0; font-size: 26px; color: #ffffff; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .brand-header p { color: #94a3b8; font-size: 14px; margin-top: 6px; }
     h2, h3 { margin-top: 0; color: #ffffff; }
     p { color: #94a3b8; font-size: 14px; line-height: 1.5; }
     .form-group { margin-bottom: 16px; }
     label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #94a3b8; margin-bottom: 6px; }
-    input, textarea { width: 100%; padding: 12px; background-color: #1a2332; border: 1px solid #2a364f; border-radius: 8px; color: #ffffff; font-size: 14px; }
-    input:focus, textarea:focus { outline: none; border-color: #6366f1; }
+    input { width: 100%; padding: 12px; background-color: #1a2332; border: 1px solid #2a364f; border-radius: 8px; color: #ffffff; font-size: 14px; }
+    input:focus { outline: none; border-color: #6366f1; }
     .btn { width: 100%; padding: 14px; background-color: #6366f1; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 15px; cursor: pointer; transition: background 0.2s; }
     .btn:hover { background-color: #4f46e5; }
     .btn-secondary { background-color: #1a2332; color: #94a3b8; border: 1px solid #2a364f; margin-top: 12px; }
     .btn-secondary:hover { background-color: #2a364f; color: #ffffff; }
-    .auth-toggle { text-align: center; margin-top: 14px; font-size: 13px; color: #94a3b8; }
+    .auth-toggle { text-align: center; margin-top: 16px; font-size: 13px; color: #94a3b8; }
     .auth-toggle span { color: #6366f1; cursor: pointer; font-weight: 600; text-decoration: underline; }
     .embed-box { background-color: #0d1117; border: 1px solid #30363d; border-radius: 8px; padding: 12px; font-family: monospace; font-size: 12px; color: #a5d6ff; word-break: break-all; margin: 12px 0; }
-    .lead-item { background-color: #1a2332; border: 1px solid #2a364f; border-radius: 8px; padding: 12px; margin-bottom: 10px; }
-    .lead-name { font-weight: bold; color: #ffffff; margin-bottom: 4px; }
-    .lead-phone { color: #6366f1; font-size: 13px; margin-bottom: 6px; }
+    .lead-item { background-color: #1a2332; border: 1px solid #2a364f; border-radius: 8px; padding: 14px; margin-bottom: 10px; }
+    .lead-name { font-weight: bold; color: #ffffff; margin-bottom: 4px; font-size: 15px; }
+    .lead-phone { color: #6366f1; font-size: 13px; margin-bottom: 6px; font-weight: 600; }
     .lead-msg { color: #94a3b8; font-size: 13px; }
     .hidden { display: none !important; }
     .status-msg { margin-top: 12px; font-size: 14px; text-align: center; }
@@ -34,38 +37,17 @@
 <body>
 
   <div class="container">
-    <!-- LEAD CAPTURE FORM VIEW -->
-    <div id="lead-view" class="card">
-      <h2>Request Immediate Callback</h2>
-      <p>Leave your contact details and an available agent will reply within 15 minutes.</p>
-      
-      <form id="lead-form">
-        <div class="form-group">
-          <label>Your Name</label>
-          <input type="text" id="lead-name" placeholder="John Doe" required>
-        </div>
-        <div class="form-group">
-          <label>Phone Number</label>
-          <input type="tel" id="lead-phone" placeholder="+234 800 000 0000" required>
-        </div>
-        <div class="form-group">
-          <label>What do you need help with?</label>
-          <textarea id="lead-message" rows="3" placeholder="Briefly describe what you're looking for..."></textarea>
-        </div>
-        <button type="submit" class="btn" id="submit-btn">Submit Request</button>
-      </form>
-      
-      <div id="lead-status" class="status-msg"></div>
-
-      <button id="show-auth-btn" class="btn btn-secondary">Business Owner Portal</button>
+    <div class="brand-header">
+      <h1>⚡ InstantLead</h1>
+      <p>Capture hot website leads and get instant callbacks.</p>
     </div>
 
-    <!-- AUTHENTICATION VIEW (LOGIN / SIGNUP) -->
-    <div id="auth-view" class="card hidden">
+    <!-- AUTHENTICATION VIEW (LOGIN / SIGNUP FIRST) -->
+    <div id="auth-view" class="card">
       <!-- LOGIN FORM -->
       <div id="login-box">
-        <h2>Owner Log In</h2>
-        <p>Access your incoming leads dashboard.</p>
+        <h2>Business Owner Log In</h2>
+        <p>Access your leads dashboard and embed settings.</p>
         <form id="login-form">
           <div class="form-group">
             <label>Email Address</label>
@@ -103,7 +85,6 @@
       </div>
 
       <div id="auth-status" class="status-msg"></div>
-      <button id="show-capture-btn" class="btn btn-secondary">Back to Callback Form</button>
     </div>
 
     <!-- DASHBOARD VIEW -->
@@ -132,25 +113,11 @@
     const SUPABASE_ANON_KEY = 'sb_publishable_WeghbAEB6DM-UBxu9W61tw_rqHWNd-J';
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // Navigation Switchers
-    const leadView = document.getElementById('lead-view');
     const authView = document.getElementById('auth-view');
     const dashboardView = document.getElementById('dashboard-view');
-
     const loginBox = document.getElementById('login-box');
     const signupBox = document.getElementById('signup-box');
     const authStatus = document.getElementById('auth-status');
-
-    document.getElementById('show-auth-btn').addEventListener('click', () => {
-      leadView.classList.add('hidden');
-      authView.classList.remove('hidden');
-    });
-
-    document.getElementById('show-capture-btn').addEventListener('click', () => {
-      authView.classList.add('hidden');
-      leadView.classList.remove('hidden');
-      authStatus.textContent = '';
-    });
 
     document.getElementById('to-signup').addEventListener('click', () => {
       loginBox.classList.add('hidden');
@@ -162,36 +129,6 @@
       signupBox.classList.add('hidden');
       loginBox.classList.remove('hidden');
       authStatus.textContent = '';
-    });
-
-    // Lead Capture Submission
-    document.getElementById('lead-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const status = document.getElementById('lead-status');
-      const submitBtn = document.getElementById('submit-btn');
-      
-      const name = document.getElementById('lead-name').value;
-      const phone = document.getElementById('lead-phone').value;
-      const message = document.getElementById('lead-message').value;
-
-      submitBtn.textContent = 'Sending...';
-      submitBtn.disabled = true;
-
-      const { data, error } = await _supabase
-        .from('leads')
-        .insert([{ name, phone, message }]);
-
-      if (error) {
-        status.style.color = '#ef4444';
-        status.textContent = 'Error submitting request. Please try again.';
-      } else {
-        status.style.color = '#4ade80';
-        status.textContent = 'Request submitted successfully! We will contact you shortly.';
-        document.getElementById('lead-form').reset();
-      }
-
-      submitBtn.textContent = 'Submit Request';
-      submitBtn.disabled = false;
     });
 
     // Supabase Sign Up
@@ -211,8 +148,8 @@
         authStatus.textContent = error.message;
       } else {
         authStatus.style.color = '#4ade80';
-        authStatus.textContent = 'Account created successfully! Logging you in...';
-        setTimeout(() => showDashboard(), 1200);
+        authStatus.textContent = 'Account created successfully!';
+        setTimeout(() => showDashboard(), 1000);
       }
 
       btn.textContent = 'Create Free Account';
@@ -277,7 +214,7 @@
     document.getElementById('logout-btn').addEventListener('click', async () => {
       await _supabase.auth.signOut();
       dashboardView.classList.add('hidden');
-      leadView.classList.remove('hidden');
+      authView.classList.remove('hidden');
     });
 
     // Copy Embed Code
@@ -292,5 +229,5 @@
   </script>
 
 </body>
- </html>
- 
+           </html>
+                                                                   
