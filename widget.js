@@ -1,5 +1,9 @@
  (function () {
-  // Inject CSS styles for the floating button & popup modal
+  // Read the owner's user_id from the script tag attribute
+  const scriptTag = document.currentScript || document.querySelector('script[data-owner-id]');
+  const ownerId = scriptTag ? scriptTag.getAttribute('data-owner-id') : null;
+
+  // Inject CSS styles
   const style = document.createElement('style');
   style.innerHTML = `
     .il-widget-btn {
@@ -106,12 +110,12 @@
   `;
   document.body.appendChild(widgetContainer);
 
-  // Event Listeners for opening/closing
+  // Modal display toggles
   const modal = document.getElementById('il-modal');
   document.getElementById('il-trigger-btn').onclick = () => modal.style.display = 'flex';
   document.getElementById('il-close-modal').onclick = () => modal.style.display = 'none';
 
-  // Handle Form Submission to Supabase
+  // Handle Form Submission
   document.getElementById('il-widget-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = document.getElementById('il-submit-btn');
@@ -123,7 +127,8 @@
     const payload = {
       name: document.getElementById('il-name').value,
       phone: document.getElementById('il-phone').value,
-      message: document.getElementById('il-message').value
+      message: document.getElementById('il-message').value,
+      user_id: ownerId
     };
 
     try {
@@ -155,4 +160,3 @@
     btn.disabled = false;
   });
 })();
-  
