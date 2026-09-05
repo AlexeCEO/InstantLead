@@ -181,11 +181,25 @@
     });
 
     // Dashboard Functions
-    function showDashboard() {
-      authView.classList.add('hidden');
-      dashboardView.classList.remove('hidden');
-      fetchLeads();
-    }
+    async function showDashboard() {
+  authView.classList.add('hidden');
+  dashboardView.classList.remove('hidden');
+
+  // Retrieve current logged-in user
+  const { data: { user } } = await _supabase.auth.getUser();
+
+  if (user) {
+    // Generate script snippet with owner ID
+    const snippet = `<script src="https://alexeceo.github.io/InstantLead/widget.js" data-owner-id="${user.id}"></script>`;
+    
+    // Display in dashboard embed code field
+    const embedInput = document.getElementById('embed-code') || document.getElementById('embedCodeText');
+    if (embedInput) embedInput.value = snippet;
+  }
+
+  fetchLeads();
+ }
+ 
 
     async function fetchLeads() {
       const listContainer = document.getElementById('leads-list');
