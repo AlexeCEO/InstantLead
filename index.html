@@ -147,34 +147,40 @@
       fetchLeads();
     }
 
-    // Fetch Leads
-    async function fetchLeads() {
-      const listContainer = document.getElementById('leads-list');
-      listContainer.innerHTML = 'Loading leads...';
 
-      const { data: { user } } = await _supabase.auth.getUser();
-      if (!user) return;
+   
+      // Fetch Leads (With Visual Debugging)
+async function fetchLeads() {
+  const listContainer = document.getElementById('leads-list');
+  listContainer.innerHTML = 'Loading leads...';
 
-      const { data: leads, error } = await _supabase
-        .from('leads')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+  // 1. Fetch leads without user_id filtering first to verify connection
+  const { data: leads, error } = await _supabase
+    .from('leads')
+    .select('*');
 
-      if (error || !leads || leads.length === 0) {
-        listContainer.innerHTML = '<p>No leads received yet.</p>';
-        return;
-      }
+  // 2. Display database error directly on screen if it fails
+  if (error) {
+    listContainer.innerHTML = `<p style="color:#ef4444; font-weight:bold;">Database Error: ${error.message}</p>`;
+    return;
+  }
 
-      listContainer.innerHTML = leads.map(lead => `
-        <div class="lead-card">
-          <div class="lead-name">${lead.name || 'Anonymous'}</div>
-          <a class="lead-phone" href="tel:${lead.phone}">📞 ${lead.phone}</a>
-          <p class="lead-msg">${lead.message || 'No message provided.'}</p>
-        </div>
-      `).join('');
-    }
+  // 3. Display message if table is empty
+  if (!leads || leads.length === 0) {
+    listContainer.innerHTML = '<p>No leads found in database table.</p>';
+    return;
+  }
 
+  // 4. Render lead cards
+  listContainer.innerHTML = leads.map(lead => `
+    <div class="lead-card">
+      <div class="lead-name">${lead.name || 'Anonymous'}</div>
+      <a class="lead-phone" href="tel:${lead.phone}">📞 ${lead.phone}</a>
+      <p class="lead-msg">${lead.message || 'No message provided.'}</p>
+    </div>
+  `).join('');
+}
+   
     // Copy Embed Code
     document.getElementById('copy-btn').onclick = () => {
       const embedInput = document.getElementById('embed-code');
