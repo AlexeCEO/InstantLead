@@ -1,57 +1,43 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>InstantLead - Lead Capture SaaS</title>
+  <title>InstantLead - Dashboard</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: #0b0f17; color: #ffffff; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-    .container { width: 100%; max-width: 480px; }
-    .card { background-color: #121826; border: 1px solid #1f293d; border-radius: 12px; padding: 28px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); margin-bottom: 16px; }
-    .brand-header { text-align: center; margin-bottom: 24px; }
-    .brand-header h1 { margin: 0; font-size: 26px; color: #ffffff; display: flex; align-items: center; justify-content: center; gap: 8px; }
-    .brand-header p { color: #94a3b8; font-size: 14px; margin-top: 6px; }
+    body { background-color: #0b0f17; color: #ffffff; margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh; }
+    .container { width: 100%; max-width: 500px; }
+    .card { background-color: #121826; border: 1px solid #1f293d; border-radius: 12px; padding: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); margin-bottom: 20px; }
+    .hidden { display: none !important; }
     h2, h3 { margin-top: 0; color: #ffffff; }
     p { color: #94a3b8; font-size: 14px; line-height: 1.5; }
     .form-group { margin-bottom: 16px; }
-    label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #94a3b8; margin-bottom: 6px; }
-    input { width: 100%; padding: 12px; background-color: #1a2332; border: 1px solid #2a364f; border-radius: 8px; color: #ffffff; font-size: 14px; }
-    input:focus { outline: none; border-color: #6366f1; }
-    .btn { width: 100%; padding: 14px; background-color: #6366f1; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 15px; cursor: pointer; transition: background 0.2s; }
-    .btn:hover { background-color: #4f46e5; }
-    .btn-secondary { background-color: #1a2332; color: #94a3b8; border: 1px solid #2a364f; margin-top: 12px; }
-    .btn-secondary:hover { background-color: #2a364f; color: #ffffff; }
-    .auth-toggle { text-align: center; margin-top: 16px; font-size: 13px; color: #94a3b8; }
-    .auth-toggle span { color: #6366f1; cursor: pointer; font-weight: 600; text-decoration: underline; }
-    .embed-box { background-color: #0d1117; border: 1px solid #30363d; border-radius: 8px; padding: 12px; font-family: monospace; font-size: 12px; color: #a5d6ff; word-break: break-all; margin: 12px 0; }
-    .lead-item { background-color: #1a2332; border: 1px solid #2a364f; border-radius: 8px; padding: 14px; margin-bottom: 10px; }
-    .lead-name { font-weight: bold; color: #ffffff; margin-bottom: 4px; font-size: 15px; }
-    .lead-phone { color: #6366f1; font-size: 13px; margin-bottom: 6px; font-weight: 600; }
-    .lead-msg { color: #94a3b8; font-size: 13px; }
-    .hidden { display: none !important; }
-    .status-msg { margin-top: 12px; font-size: 14px; text-align: center; }
+    label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; color: #94a3b8; margin-bottom: 6px; }
+    input { width: 100%; padding: 12px; background-color: #1a2332; border: 1px solid #2a364f; border-radius: 6px; color: #ffffff; font-size: 14px; box-sizing: border-box; }
+    .btn { width: 100%; padding: 14px; background-color: #6366f1; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 14px; margin-top: 8px; }
+    .btn-secondary { background-color: #1a2332; color: #94a3b8; border: 1px solid #2a364f; margin-top: 10px; }
+    .lead-card { background: #1a2332; border: 1px solid #2a364f; border-radius: 8px; padding: 16px; margin-bottom: 12px; }
+    .lead-name { font-weight: 700; font-size: 16px; color: #ffffff; margin-bottom: 4px; }
+    .lead-phone { color: #6366f1; font-weight: 600; text-decoration: none; display: inline-block; margin-bottom: 8px; }
+    .lead-msg { color: #94a3b8; font-size: 13px; margin: 0; }
+    .embed-box { width: 100%; padding: 10px; background: #0b0f17; border: 1px solid #2a364f; color: #4ade80; font-family: monospace; font-size: 12px; border-radius: 6px; word-break: break-all; }
   </style>
 </head>
 <body>
 
   <div class="container">
-    <div class="brand-header">
-      <h1>⚡ InstantLead</h1>
-      <p>Capture hot website leads and get instant callbacks.</p>
-    </div>
-
-    <!-- AUTHENTICATION VIEW (LOGIN / SIGNUP FIRST) -->
+    <!-- AUTH SECTION -->
     <div id="auth-view" class="card">
-      <!-- LOGIN FORM -->
+      <h2>InstantLead Portal</h2>
+      <p>Log in or register to manage your website widget.</p>
+      
       <div id="login-box">
-        <h2>Business Owner Log In</h2>
-        <p>Access your leads dashboard and embed settings.</p>
         <form id="login-form">
           <div class="form-group">
-            <label>Email Address</label>
-            <input type="email" id="login-email" placeholder="owner@business.com" required>
+            <label>Email</label>
+            <input type="email" id="login-email" required>
           </div>
           <div class="form-group">
             <label>Password</label>
@@ -59,56 +45,45 @@
           </div>
           <button type="submit" class="btn" id="login-btn">Log In</button>
         </form>
-        <div class="auth-toggle">
-          Don't have an account? <span id="to-signup">Sign Up Free</span>
-        </div>
+        <button class="btn btn-secondary" id="to-signup">Need an account? Sign Up</button>
       </div>
 
-      <!-- SIGNUP FORM -->
       <div id="signup-box" class="hidden">
-        <h2>Create Free Account</h2>
-        <p>Start capturing leads on your website for free.</p>
         <form id="signup-form">
           <div class="form-group">
-            <label>Email Address</label>
-            <input type="email" id="signup-email" placeholder="owner@business.com" required>
+            <label>Email</label>
+            <input type="email" id="signup-email" required>
           </div>
           <div class="form-group">
             <label>Password</label>
-            <input type="password" id="signup-password" placeholder="Min 6 characters" required minlength="6">
+            <input type="password" id="signup-password" required>
           </div>
           <button type="submit" class="btn" id="signup-btn">Create Free Account</button>
         </form>
-        <div class="auth-toggle">
-          Already have an account? <span id="to-login">Log In</span>
-        </div>
+        <button class="btn btn-secondary" id="to-login">Already have an account? Log In</button>
       </div>
-
-      <div id="auth-status" class="status-msg"></div>
+      
+      <div id="auth-status" style="margin-top: 12px; text-align: center; font-size: 13px;"></div>
     </div>
 
-    <!-- DASHBOARD VIEW -->
-    <div id="dashboard-view" class="hidden">
-      <!-- EMBED CODE CARD -->
-      <div class="card">
-        <h3>⚡ Your Embed Code</h3>
-        <p>Copy and paste this 1-line script into your website before the closing &lt;/body&gt; tag to enable the callback button:</p>
-        <div class="embed-box" id="embed-code">&lt;script src="https://alexeceo.github.io/InstantLead/widget.js"&gt;&lt;/script&gt;</div>
-        <button id="copy-btn" class="btn btn-secondary">Copy Embed Code</button>
+    <!-- DASHBOARD SECTION -->
+    <div id="dashboard-view" class="card hidden">
+      <h2>Your Lead Dashboard</h2>
+      
+      <div class="form-group">
+        <label>Your Custom Embed Code</label>
+        <textarea id="embed-code" class="embed-box" rows="3" readonly></textarea>
+        <button class="btn btn-secondary" id="copy-btn">Copy Embed Code</button>
       </div>
 
-      <!-- INCOMING LEADS CARD -->
-      <div class="card">
-        <h3>Incoming Leads</h3>
-        <p>Manage warm leads requesting immediate callbacks.</p>
-        <div id="leads-list">Loading leads...</div>
-        <button id="logout-btn" class="btn btn-secondary">Log Out</button>
-      </div>
+      <h3>Incoming Leads</h3>
+      <div id="leads-list">Loading leads...</div>
+
+      <button class="btn btn-secondary" id="logout-btn" style="margin-top: 20px;">Log Out</button>
     </div>
   </div>
 
   <script>
-    // Initialize Supabase
     const SUPABASE_URL = 'https://waatnxffylvlfqtlznzv.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_WeghbAEB6DM-UBxu9W61tw_rqHWNd-J';
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -119,88 +94,60 @@
     const signupBox = document.getElementById('signup-box');
     const authStatus = document.getElementById('auth-status');
 
-    document.getElementById('to-signup').addEventListener('click', () => {
-      loginBox.classList.add('hidden');
-      signupBox.classList.remove('hidden');
-      authStatus.textContent = '';
-    });
+    // Toggle forms
+    document.getElementById('to-signup').onclick = () => { loginBox.classList.add('hidden'); signupBox.classList.remove('hidden'); authStatus.textContent = ''; };
+    document.getElementById('to-login').onclick = () => { signupBox.classList.add('hidden'); loginBox.classList.remove('hidden'); authStatus.textContent = ''; };
 
-    document.getElementById('to-login').addEventListener('click', () => {
-      signupBox.classList.add('hidden');
-      loginBox.classList.remove('hidden');
-      authStatus.textContent = '';
-    });
-
-    // Supabase Sign Up
-    document.getElementById('signup-form').addEventListener('submit', async (e) => {
+    // Sign Up
+    document.getElementById('signup-form').onsubmit = async (e) => {
       e.preventDefault();
       const email = document.getElementById('signup-email').value;
       const password = document.getElementById('signup-password').value;
       const btn = document.getElementById('signup-btn');
-
-      btn.textContent = 'Creating Account...';
-      btn.disabled = true;
+      btn.textContent = 'Creating Account...'; btn.disabled = true;
 
       const { data, error } = await _supabase.auth.signUp({ email, password });
-
       if (error) {
-        authStatus.style.color = '#ef4444';
-        authStatus.textContent = error.message;
+        authStatus.style.color = '#ef4444'; authStatus.textContent = error.message;
       } else {
-        authStatus.style.color = '#4ade80';
-        authStatus.textContent = 'Account created successfully!';
+        authStatus.style.color = '#4ade80'; authStatus.textContent = 'Account created!';
         setTimeout(() => showDashboard(), 1000);
       }
+      btn.textContent = 'Create Free Account'; btn.disabled = false;
+    };
 
-      btn.textContent = 'Create Free Account';
-      btn.disabled = false;
-    });
-
-    // Supabase Log In
-    document.getElementById('login-form').addEventListener('submit', async (e) => {
+    // Log In
+    document.getElementById('login-form').onsubmit = async (e) => {
       e.preventDefault();
       const email = document.getElementById('login-email').value;
       const password = document.getElementById('login-password').value;
       const btn = document.getElementById('login-btn');
-
-      btn.textContent = 'Logging In...';
-      btn.disabled = true;
+      btn.textContent = 'Logging In...'; btn.disabled = true;
 
       const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
-
       if (error) {
-        authStatus.style.color = '#ef4444';
-        authStatus.textContent = error.message;
+        authStatus.style.color = '#ef4444'; authStatus.textContent = error.message;
       } else {
         authStatus.textContent = '';
         showDashboard();
       }
+      btn.textContent = 'Log In'; btn.disabled = false;
+    };
 
-      btn.textContent = 'Log In';
-      btn.disabled = false;
-    });
-
-    // Dashboard Functions
+    // Show Dashboard
     async function showDashboard() {
-  authView.classList.add('hidden');
-  dashboardView.classList.remove('hidden');
+      authView.classList.add('hidden');
+      dashboardView.classList.remove('hidden');
 
-  // Retrieve current logged-in user
-  const { data: { user } } = await _supabase.auth.getUser();
+      const { data: { user } } = await _supabase.auth.getUser();
+      if (user) {
+        const snippet = '<script src="https://alexeceo.github.io/InstantLead/widget.js" data-owner-id="' + user.id + '"><' + '/script>';
+        document.getElementById('embed-code').value = snippet;
+      }
+      fetchLeads();
+    }
 
-  if (user) {
-    // Generate script snippet with owner ID
-    const snippet = `<script src="https://alexeceo.github.io/InstantLead/widget.js" data-owner-id="${user.id}"></script>`;
-    
-    // Display in dashboard embed code field
-    const embedInput = document.getElementById('embed-code') || document.getElementById('embedCodeText');
-    if (embedInput) embedInput.value = snippet;
-  }
-
-  fetchLeads();
- }
- 
-
+    // Fetch Leads
     async function fetchLeads() {
       const listContainer = document.getElementById('leads-list');
       listContainer.innerHTML = 'Loading leads...';
@@ -216,32 +163,36 @@
       }
 
       listContainer.innerHTML = leads.map(lead => `
-        <div class="lead-item">
-          <div class="lead-name">${lead.name}</div>
-          <div class="lead-phone">📞 ${lead.phone}</div>
-          <div class="lead-msg">${lead.message || 'No message provided.'}</div>
+        <div class="lead-card">
+          <div class="lead-name">${lead.name || 'Anonymous'}</div>
+          <a class="lead-phone" href="tel:${lead.phone}">📞 ${lead.phone}</a>
+          <p class="lead-msg">${lead.message || 'No message provided.'}</p>
         </div>
       `).join('');
     }
 
+    // Copy Embed Code
+    document.getElementById('copy-btn').onclick = () => {
+      const embedInput = document.getElementById('embed-code');
+      embedInput.select();
+      navigator.clipboard.writeText(embedInput.value);
+      const btn = document.getElementById('copy-btn');
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = 'Copy Embed Code', 2000);
+    };
+
     // Log Out
-    document.getElementById('logout-btn').addEventListener('click', async () => {
+    document.getElementById('logout-btn').onclick = async () => {
       await _supabase.auth.signOut();
       dashboardView.classList.add('hidden');
       authView.classList.remove('hidden');
-    });
+    };
 
-    // Copy Embed Code
-    document.getElementById('copy-btn').addEventListener('click', () => {
-      const codeText = '<script src="https://alexeceo.github.io/InstantLead/widget.js"><' + '/script>';
-      navigator.clipboard.writeText(codeText).then(() => {
-        const btn = document.getElementById('copy-btn');
-        btn.textContent = 'Copied!';
-        setTimeout(() => { btn.textContent = 'Copy Embed Code'; }, 2000);
-      });
+    // Auto-login check
+    _supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) showDashboard();
     });
   </script>
-
 </body>
  </html>
  
