@@ -147,31 +147,36 @@
       fetchLeads();
     }
 
-
-   
-      // Fetch Leads (With Visual Debugging)
+      // Fetch Leads (Multi-Tenant Secure)
 async function fetchLeads() {
   const listContainer = document.getElementById('leads-list');
   listContainer.innerHTML = 'Loading leads...';
 
-  // 1. Fetch leads without user_id filtering first to verify connection
+  // Get logged-in account details
+  const { data: { user } } = await _supabase.auth.getUser();
+  if (!user) {
+    listContainer.innerHTML = '<p style="color:#ef4444;">Please log in to view leads.</p>';
+    return;
+  }
+
+  // Fetch ONLY leads belonging to this specific user ID
   const { data: leads, error } = await _supabase
     .from('leads')
-    .select('*');
+    .select('*')
+    .eq('user_id', user.id)
+    .order('id', { ascending: false });
 
-  // 2. Display database error directly on screen if it fails
   if (error) {
-    listContainer.innerHTML = `<p style="color:#ef4444; font-weight:bold;">Database Error: ${error.message}</p>`;
+    listContainer.innerHTML = `<p style="color:#ef4444;">Error loading leads: ${error.message}</p>`;
     return;
   }
 
-  // 3. Display message if table is empty
   if (!leads || leads.length === 0) {
-    listContainer.innerHTML = '<p>No leads found in database table.</p>';
+    listContainer.innerHTML = '<p style="color:#94a3b8;">No leads received yet.</p>';
     return;
   }
 
-  // 4. Render lead cards
+  // Render leads
   listContainer.innerHTML = leads.map(lead => `
     <div class="lead-card">
       <div class="lead-name">${lead.name || 'Anonymous'}</div>
@@ -180,6 +185,9 @@ async function fetchLeads() {
     </div>
   `).join('');
 }
+   
+   
+
    
     // Copy Embed Code
     document.getElementById('copy-btn').onclick = () => {
