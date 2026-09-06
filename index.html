@@ -6,38 +6,56 @@
   <title>InstantLead Dashboard</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    body { font-family: system-ui, sans-serif; background: #f8fafc; margin: 0; padding: 20px; color: #0f172a; }
-    .container { max-width: 600px; margin: 0 auto; background: white; padding: 24px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-    .hidden { display: none; }
-    input, textarea, button { width: 100%; padding: 10px; margin-bottom: 12px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; }
-    button { background: #2563eb; color: white; font-weight: bold; border: none; cursor: pointer; }
-    button:disabled { background: #94a3b8; }
-    .lead-card { border: 1px solid #e2e8f0; padding: 12px; margin-bottom: 8px; border-radius: 8px; background: #ffffff; }
-    .lead-name { font-weight: bold; font-size: 16px; margin-bottom: 4px; }
-    .lead-phone { color: #2563eb; text-decoration: none; display: inline-block; margin-bottom: 4px; }
-    .lead-msg { color: #475569; margin: 0; font-size: 14px; }
+    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: #0f172a; color: #f8fafc; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+    .card { background-color: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 24px; width: 100%; max-width: 480px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5); }
+    .hidden { display: none !important; }
+    h2, h3 { margin-top: 0; color: #f8fafc; }
+    input, textarea { width: 100%; background-color: #0f172a; border: 1px solid #334155; color: #f8fafc; padding: 12px; border-radius: 8px; margin-bottom: 12px; font-size: 14px; }
+    input:focus, textarea:focus { outline: none; border-color: #3b82f6; }
+    button { width: 100%; background-color: #2563eb; color: #ffffff; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; margin-bottom: 12px; }
+    button:hover { background-color: #1d4ed8; }
+    button:disabled { background-color: #475569; cursor: not-allowed; }
+    .embed-box { background-color: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 12px; margin-bottom: 20px; }
+    .embed-box label { font-size: 12px; color: #94a3b8; display: block; margin-bottom: 6px; font-weight: bold; }
+    textarea.code-snippet { height: 90px; font-family: monospace; font-size: 12px; color: #38bdf8; resize: none; margin-bottom: 8px; }
+    .lead-card { background-color: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 12px; margin-bottom: 10px; }
+    .lead-header { display: flex; justify-content: space-between; margin-bottom: 6px; }
+    .lead-name { font-weight: bold; color: #f8fafc; }
+    .lead-phone { color: #38bdf8; text-decoration: none; font-size: 14px; }
+    .lead-msg { color: #cbd5e1; margin: 6px 0 0 0; font-size: 13px; word-break: break-word; }
   </style>
 </head>
 <body>
-  <div class="container">
+
+  <div class="card">
+    <!-- LOGIN VIEW -->
     <div id="auth-view">
       <h2>InstantLead Login</h2>
-      <input type="email" id="email" placeholder="Your Email" required>
-      <input type="password" id="password" placeholder="Your Password" required>
+      <input type="email" id="email" placeholder="Your Email" required />
+      <input type="password" id="password" placeholder="Your Password" required />
       <button id="login-btn" onclick="handleLogin()">Log In</button>
     </div>
 
+    <!-- DASHBOARD VIEW -->
     <div id="dashboard-view" class="hidden">
-      <h2>Your Embed Code</h2>
-      <textarea id="embed-code" readonly style="height: 80px; font-family: monospace;"></textarea>
+      <h2>Dashboard</h2>
+      
+      <!-- Copy Embed Code Box -->
+      <div class="embed-box">
+        <label>YOUR WIDGET EMBED CODE</label>
+        <textarea id="embed-code" class="code-snippet" readonly></textarea>
+        <button onclick="copySnippet()" style="background-color: #334155; margin-bottom: 0;">Copy Code</button>
+      </div>
 
-      <h2>Your Leads</h2>
+      <h3>Your Received Leads</h3>
       <div id="leads-list">Loading leads...</div>
     </div>
   </div>
 
   <script>
-    const SUPABASE_URL = 'https://waatnxffylvlfqtlznzv.supabase.co/rest/v1/';
+    // Cleaned Supabase Base URL (removed /rest/v1/)
+    const SUPABASE_URL = 'https://waatnxffylvlfqtlznzv.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_WeghbAEB6DM-UBxu9W61tw_rqHWNd-J';
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -45,15 +63,17 @@
     const dashboardView = document.getElementById('dashboard-view');
 
     async function handleLogin() {
-      const email = document.getElementById('email').value;
+      const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
       const btn = document.getElementById('login-btn');
+      
       btn.innerText = 'Logging in...';
       btn.disabled = true;
 
-      const { error } = await _supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+      
       if (error) {
-        alert(error.message);
+        alert('Login failed: ' + error.message);
         btn.innerText = 'Log In';
         btn.disabled = false;
       } else {
@@ -67,15 +87,24 @@
 
       const { data: { user } } = await _supabase.auth.getUser();
       if (user) {
+        // Generate snippet containing both owner_id and owner_email
         const snippet = `<script src="https://alexeceo.github.io/InstantLead/widget.js" data-owner-id="${user.id}" data-owner-email="${user.email}"><\/script>`;
         document.getElementById('embed-code').value = snippet;
       }
       fetchLeads();
     }
 
+    function copySnippet() {
+      const copyText = document.getElementById('embed-code');
+      copyText.select();
+      copyText.setSelectionRange(0, 99999);
+      navigator.clipboard.writeText(copyText.value);
+      alert("Embed code copied to clipboard!");
+    }
+
     async function fetchLeads() {
       const listContainer = document.getElementById('leads-list');
-      listContainer.innerHTML = 'Loading leads...';
+      listContainer.innerHTML = '<p style="color:#94a3b8;">Loading leads...</p>';
 
       const { data: { user } } = await _supabase.auth.getUser();
       if (!user) {
@@ -95,20 +124,22 @@
       }
 
       if (!leads || leads.length === 0) {
-        listContainer.innerHTML = '<p>No leads received yet.</p>';
+        listContainer.innerHTML = '<p style="color:#94a3b8;">No leads received yet.</p>';
         return;
       }
 
       listContainer.innerHTML = leads.map(lead => `
         <div class="lead-card">
-          <div class="lead-name">${lead.name || 'Anonymous'}</div>
-          <a class="lead-phone" href="tel:${lead.phone}">${lead.phone || 'No phone'}</a>
+          <div class="lead-header">
+            <span class="lead-name">${lead.name || 'Anonymous'}</span>
+            <a class="lead-phone" href="tel:${lead.phone}">${lead.phone || 'No phone'}</a>
+          </div>
           <p class="lead-msg">${lead.message || 'No message provided'}</p>
         </div>
       `).join('');
     }
 
-    // Auto-check auth state on load
+    // Auto-check existing session on page refresh
     _supabase.auth.getUser().then(({ data: { user } }) => {
       if (user) showDashboard();
     });
