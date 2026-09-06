@@ -16,6 +16,9 @@
     button { width: 100%; background-color: #2563eb; color: #ffffff; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; margin-bottom: 12px; }
     button:hover { background-color: #1d4ed8; }
     button:disabled { background-color: #475569; cursor: not-allowed; }
+    .btn-secondary { background-color: #334155; margin-bottom: 0; }
+    .btn-secondary:hover { background-color: #475569; }
+    .toggle-link { color: #38bdf8; text-align: center; font-size: 13px; cursor: pointer; margin-top: 8px; text-decoration: underline; }
     .embed-box { background-color: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 12px; margin-bottom: 20px; }
     .embed-box label { font-size: 12px; color: #94a3b8; display: block; margin-bottom: 6px; font-weight: bold; }
     textarea.code-snippet { height: 90px; font-family: monospace; font-size: 12px; color: #38bdf8; resize: none; margin-bottom: 8px; }
@@ -24,28 +27,35 @@
     .lead-name { font-weight: bold; color: #f8fafc; }
     .lead-phone { color: #38bdf8; text-decoration: none; font-size: 14px; }
     .lead-msg { color: #cbd5e1; margin: 6px 0 0 0; font-size: 13px; word-break: break-word; }
+    .header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .logout-btn { width: auto; background-color: transparent; border: 1px solid #ef4444; color: #ef4444; padding: 6px 12px; font-size: 12px; margin-bottom: 0; }
+    .logout-btn:hover { background-color: #ef4444; color: #fff; }
   </style>
 </head>
 <body>
 
   <div class="card">
-    <!-- LOGIN VIEW -->
+    <!-- AUTH VIEW (LOGIN / SIGNUP) -->
     <div id="auth-view">
-      <h2>InstantLead Login</h2>
+      <h2 id="auth-title">InstantLead Login</h2>
       <input type="email" id="email" placeholder="Your Email" required />
       <input type="password" id="password" placeholder="Your Password" required />
-      <button id="login-btn" onclick="handleLogin()">Log In</button>
+      <button id="auth-btn" onclick="handleAuth()">Log In</button>
+      <div id="toggle-auth" class="toggle-link" onclick="toggleAuthMode()">Don't have an account? Sign Up</div>
     </div>
 
     <!-- DASHBOARD VIEW -->
     <div id="dashboard-view" class="hidden">
-      <h2>Dashboard</h2>
+      <div class="header-bar">
+        <h2>Dashboard</h2>
+        <button class="logout-btn" onclick="handleLogout()">Log Out</button>
+      </div>
       
       <!-- Copy Embed Code Box -->
       <div class="embed-box">
         <label>YOUR WIDGET EMBED CODE</label>
         <textarea id="embed-code" class="code-snippet" readonly></textarea>
-        <button onclick="copySnippet()" style="background-color: #334155; margin-bottom: 0;">Copy Code</button>
+        <button onclick="copySnippet()" class="btn-secondary">Copy Code</button>
       </div>
 
       <h3>Your Received Leads</h3>
@@ -54,31 +64,74 @@
   </div>
 
   <script>
-    // Cleaned Supabase Base URL (removed /rest/v1/)
     const SUPABASE_URL = 'https://waatnxffylvlfqtlznzv.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_WeghbAEB6DM-UBxu9W61tw_rqHWNd-J';
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+    let isSignUpMode = false;
+
     const authView = document.getElementById('auth-view');
     const dashboardView = document.getElementById('dashboard-view');
+    const authTitle = document.getElementById('auth-title');
+    const authBtn = document.getElementById('auth-btn');
+    const toggleAuth = document.getElementById('toggle-auth');
 
-    async function handleLogin() {
+    function toggleAuthMode() {
+      isSignUpMode = !isSignUpMode;
+      if (isSignUpMode) {
+        authTitle.innerText = 'Create Account';
+        authBtn.innerText = 'Sign Up';
+        toggleAuth.innerText = 'Already have an account? Log In';
+      } else {
+        authTitle.innerText = 'InstantLead Login';
+        authBtn.innerText = 'Log In';
+        toggleAuth.innerText = "Don't have an account? Sign Up";
+      }
+    }
+
+    async function handleAuth() {
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
-      const btn = document.getElementById('login-btn');
       
-      btn.innerText = 'Logging in...';
-      btn.disabled = true;
-
-      const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
-      
-      if (error) {
-        alert('Login failed: ' + error.message);
-        btn.innerText = 'Log In';
-        btn.disabled = false;
-      } else {
-        showDashboard();
+      if (!email || !password) {
+        alert('Please fill in both email and password.');
+        return;
       }
+
+      authBtn.disabled = true;
+
+      if (isSignUpMode) {
+        authBtn.innerText = 'Creating account...';
+        const { data, error } = await _supabase.auth.signUp({ email, password });
+        if (error) {
+          alert('Sign Up failed: ' + error.message);
+          authBtn.innerText = 'Sign Up';
+          authBtn.disabled = false;
+        } else {
+          alert('Account created successfully! Logging you in...');
+          showDashboard();
+        }
+      } else {
+        authBtn.innerText = 'Logging in...';
+        const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+        if (error) {
+          alert('Login failed: ' + error.message);
+          authBtn.innerText = 'Log In';
+          authBtn.disabled = false;
+        } else {
+          showDashboard();
+        }
+      }
+    }
+
+    async function handleLogout() {
+      await _supabase.auth.signOut();
+      dashboardView.classList.add('hidden');
+      authView.classList.remove('hidden');
+      document.getElementById('email').value = '';
+      document.getElementById('password').value = '';
+      authBtn.disabled = false;
+      if (isSignUpMode) toggleAuthMode();
     }
 
     async function showDashboard() {
@@ -87,7 +140,7 @@
 
       const { data: { user } } = await _supabase.auth.getUser();
       if (user) {
-        // Generate snippet containing both owner_id and owner_email
+        // Embed snippet passes both owner_id and owner_email to widget.js
         const snippet = `<script src="https://alexeceo.github.io/InstantLead/widget.js" data-owner-id="${user.id}" data-owner-email="${user.email}"><\/script>`;
         document.getElementById('embed-code').value = snippet;
       }
@@ -139,7 +192,7 @@
       `).join('');
     }
 
-    // Auto-check existing session on page refresh
+    // Auto-check existing session on load
     _supabase.auth.getUser().then(({ data: { user } }) => {
       if (user) showDashboard();
     });
