@@ -7,59 +7,64 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: #0f172a; color: #f8fafc; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-    .card { background-color: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 24px; width: 100%; max-width: 480px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5); }
+    body { background-color: #0b0f19; color: #f8fafc; margin: 0; padding: 24px 16px; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; }
+    .container { width: 100%; max-width: 460px; display: flex; flex-direction: column; gap: 20px; }
+    .card { background-color: #131b2e; border: 1px solid #1e293b; border-radius: 16px; padding: 24px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4); }
     .hidden { display: none !important; }
-    h2, h3 { margin-top: 0; color: #f8fafc; }
-    input, textarea { width: 100%; background-color: #0f172a; border: 1px solid #334155; color: #f8fafc; padding: 12px; border-radius: 8px; margin-bottom: 12px; font-size: 14px; }
+    
+    h2 { margin: 0 0 8px 0; font-size: 20px; font-weight: 700; color: #f8fafc; display: flex; align-items: center; gap: 8px; }
+    p.subtitle { color: #94a3b8; font-size: 13px; margin: 0 0 18px 0; line-height: 1.5; }
+    
+    input, textarea { width: 100%; background-color: #0a0e17; border: 1px solid #1e293b; color: #f8fafc; padding: 14px; border-radius: 10px; font-size: 14px; margin-bottom: 12px; }
     input:focus, textarea:focus { outline: none; border-color: #3b82f6; }
-    button { width: 100%; background-color: #2563eb; color: #ffffff; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; margin-bottom: 12px; }
-    button:hover { background-color: #1d4ed8; }
-    button:disabled { background-color: #475569; cursor: not-allowed; }
-    .btn-secondary { background-color: #334155; margin-bottom: 0; }
-    .btn-secondary:hover { background-color: #475569; }
-    .toggle-link { color: #38bdf8; text-align: center; font-size: 13px; cursor: pointer; margin-top: 8px; text-decoration: underline; }
-    .embed-box { background-color: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 12px; margin-bottom: 20px; }
-    .embed-box label { font-size: 12px; color: #94a3b8; display: block; margin-bottom: 6px; font-weight: bold; }
-    textarea.code-snippet { height: 90px; font-family: monospace; font-size: 12px; color: #38bdf8; resize: none; margin-bottom: 8px; }
-    .lead-card { background-color: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 12px; margin-bottom: 10px; }
-    .lead-header { display: flex; justify-content: space-between; margin-bottom: 6px; }
-    .lead-name { font-weight: bold; color: #f8fafc; }
+    
+    textarea.code-snippet { height: 85px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 12px; color: #38bdf8; resize: none; margin-bottom: 16px; line-height: 1.4; }
+    
+    .btn-primary { width: 100%; background-color: #2563eb; color: #ffffff; border: none; padding: 14px; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 14px; transition: background 0.2s; }
+    .btn-primary:hover { background-color: #1d4ed8; }
+    
+    .btn-dark { width: 100%; background-color: #1e293b; color: #f8fafc; border: 1px solid #334155; padding: 14px; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 14px; transition: all 0.2s; }
+    .btn-dark:hover { background-color: #334155; }
+    
+    .toggle-link { color: #38bdf8; text-align: center; font-size: 13px; cursor: pointer; margin-top: 12px; text-decoration: underline; }
+    
+    .lead-card { background-color: #0a0e17; border: 1px solid #1e293b; border-radius: 10px; padding: 14px; margin-bottom: 10px; }
+    .lead-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .lead-name { font-weight: 600; color: #f8fafc; font-size: 15px; }
     .lead-phone { color: #38bdf8; text-decoration: none; font-size: 14px; }
-    .lead-msg { color: #cbd5e1; margin: 6px 0 0 0; font-size: 13px; word-break: break-word; }
-    .header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-    .logout-btn { width: auto; background-color: transparent; border: 1px solid #ef4444; color: #ef4444; padding: 6px 12px; font-size: 12px; margin-bottom: 0; }
-    .logout-btn:hover { background-color: #ef4444; color: #fff; }
+    .lead-msg { color: #94a3b8; margin: 6px 0 0 0; font-size: 13px; word-break: break-word; }
   </style>
 </head>
 <body>
 
-  <div class="card">
-    <!-- AUTH VIEW (LOGIN / SIGNUP) -->
-    <div id="auth-view">
+  <div class="container">
+    <!-- AUTH VIEW -->
+    <div id="auth-view" class="card">
       <h2 id="auth-title">InstantLead Login</h2>
+      <p class="subtitle">Access your multi-tenant lead management dashboard.</p>
       <input type="email" id="email" placeholder="Your Email" required />
       <input type="password" id="password" placeholder="Your Password" required />
-      <button id="auth-btn" onclick="handleAuth()">Log In</button>
+      <button id="auth-btn" class="btn-primary" onclick="handleAuth()">Log In</button>
       <div id="toggle-auth" class="toggle-link" onclick="toggleAuthMode()">Don't have an account? Sign Up</div>
     </div>
 
     <!-- DASHBOARD VIEW -->
-    <div id="dashboard-view" class="hidden">
-      <div class="header-bar">
-        <h2>Dashboard</h2>
-        <button class="logout-btn" onclick="handleLogout()">Log Out</button>
-      </div>
-      
-      <!-- Copy Embed Code Box -->
-      <div class="embed-box">
-        <label>YOUR WIDGET EMBED CODE</label>
+    <div id="dashboard-view" class="hidden container">
+      <!-- EMBED CODE CARD -->
+      <div class="card">
+        <h2>⚡ Your Embed Code</h2>
+        <p class="subtitle">Copy and paste this 1-line script into your website before the closing &lt;/body&gt; tag to enable the callback button:</p>
         <textarea id="embed-code" class="code-snippet" readonly></textarea>
-        <button onclick="copySnippet()" class="btn-secondary">Copy Code</button>
+        <button id="copy-btn" class="btn-dark" onclick="copySnippet()">Copy Embed Code</button>
       </div>
 
-      <h3>Your Received Leads</h3>
-      <div id="leads-list">Loading leads...</div>
+      <!-- INCOMING LEADS CARD -->
+      <div class="card">
+        <h2>Incoming Leads</h2>
+        <p class="subtitle">Manage warm leads requesting immediate callbacks.</p>
+        <div id="leads-list">Loading leads...</div>
+        <button class="btn-dark" style="margin-top: 20px;" onclick="handleLogout()">Log Out</button>
+      </div>
     </div>
   </div>
 
@@ -92,28 +97,22 @@
     async function handleAuth() {
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
-      
-      if (!email || !password) {
-        alert('Please fill in both email and password.');
-        return;
-      }
+      if (!email || !password) return alert('Please enter both email and password.');
 
       authBtn.disabled = true;
-
       if (isSignUpMode) {
         authBtn.innerText = 'Creating account...';
-        const { data, error } = await _supabase.auth.signUp({ email, password });
+        const { error } = await _supabase.auth.signUp({ email, password });
         if (error) {
           alert('Sign Up failed: ' + error.message);
           authBtn.innerText = 'Sign Up';
           authBtn.disabled = false;
         } else {
-          alert('Account created successfully! Logging you in...');
           showDashboard();
         }
       } else {
         authBtn.innerText = 'Logging in...';
-        const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+        const { error } = await _supabase.auth.signInWithPassword({ email, password });
         if (error) {
           alert('Login failed: ' + error.message);
           authBtn.innerText = 'Log In';
@@ -128,10 +127,6 @@
       await _supabase.auth.signOut();
       dashboardView.classList.add('hidden');
       authView.classList.remove('hidden');
-      document.getElementById('email').value = '';
-      document.getElementById('password').value = '';
-      authBtn.disabled = false;
-      if (isSignUpMode) toggleAuthMode();
     }
 
     async function showDashboard() {
@@ -140,30 +135,39 @@
 
       const { data: { user } } = await _supabase.auth.getUser();
       if (user) {
-        // Embed snippet passes both owner_id and owner_email to widget.js
         const snippet = `<script src="https://alexeceo.github.io/InstantLead/widget.js" data-owner-id="${user.id}" data-owner-email="${user.email}"><\/script>`;
         document.getElementById('embed-code').value = snippet;
       }
       fetchLeads();
     }
 
+    // Silent Copy Function (No browser alert popup)
     function copySnippet() {
       const copyText = document.getElementById('embed-code');
+      const copyBtn = document.getElementById('copy-btn');
+      
       copyText.select();
       copyText.setSelectionRange(0, 99999);
       navigator.clipboard.writeText(copyText.value);
-      alert("Embed code copied to clipboard!");
+
+      // Smooth UI feedback on the button itself
+      copyBtn.innerText = 'Copied to Clipboard! ✓';
+      copyBtn.style.backgroundColor = '#10b981';
+      copyBtn.style.borderColor = '#10b981';
+
+      setTimeout(() => {
+        copyBtn.innerText = 'Copy Embed Code';
+        copyBtn.style.backgroundColor = '#1e293b';
+        copyBtn.style.borderColor = '#334155';
+      }, 2000);
     }
 
     async function fetchLeads() {
       const listContainer = document.getElementById('leads-list');
-      listContainer.innerHTML = '<p style="color:#94a3b8;">Loading leads...</p>';
+      listContainer.innerHTML = '<p style="color:#94a3b8; font-size:14px;">Loading leads...</p>';
 
       const { data: { user } } = await _supabase.auth.getUser();
-      if (!user) {
-        listContainer.innerHTML = '<p style="color:#ef4444;">Please log in.</p>';
-        return;
-      }
+      if (!user) return;
 
       const { data: leads, error } = await _supabase
         .from('leads')
@@ -172,12 +176,12 @@
         .order('id', { ascending: false });
 
       if (error) {
-        listContainer.innerHTML = `<p style="color:#ef4444;">Error loading leads: ${error.message}</p>`;
+        listContainer.innerHTML = `<p style="color:#ef4444; font-size:14px;">Error: ${error.message}</p>`;
         return;
       }
 
       if (!leads || leads.length === 0) {
-        listContainer.innerHTML = '<p style="color:#94a3b8;">No leads received yet.</p>';
+        listContainer.innerHTML = '<p style="color:#94a3b8; font-size:14px;">No leads received yet.</p>';
         return;
       }
 
@@ -192,7 +196,6 @@
       `).join('');
     }
 
-    // Auto-check existing session on load
     _supabase.auth.getUser().then(({ data: { user } }) => {
       if (user) showDashboard();
     });
