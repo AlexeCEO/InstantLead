@@ -8,7 +8,14 @@
     return;
   }
 
-  // Floating Trigger Button Fix
+  // Load Supabase SDK dynamically if not present
+  if (!window.supabase) {
+    const supabaseScript = document.createElement('script');
+    supabaseScript.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+    document.head.appendChild(supabaseScript);
+  }
+
+  // Floating Trigger Button
   const button = document.createElement('div');
   button.id = 'instant-lead-btn';
   button.innerHTML = '💬 Contact Us';
@@ -87,29 +94,24 @@
     const phone = document.getElementById('lead-phone').value;
     const message = document.getElementById('lead-msg').value;
 
-    const payload = {
-      record: {
-        owner_id: ownerId,
-        owner_email: ownerEmail,
-        name: name,
-        phone: phone,
-        message: message
-      }
-    };
-
     try {
-      const response = await fetch('https://eolw5rybnknsl67.m.pipedream.net', {
+      // 1. Direct write to Supabase Database
+      if (window.supabase) {
+        const _sp = window.supabase.createClient('https://waatnxffylvlfqtlznzv.supabase.co', 'sb_publishable_WeghbAEB6DM-UBxu9W61tw_rqHWNd-J');
+        await _sp.from('leads').insert([{ user_id: ownerId, name: name, phone: phone, message: message }]);
+      }
+
+      // 2. Dispatch payload to Pipedream for instant Gmail notification
+      await fetch('https://eolw5rybnknsl67.m.pipedream.net', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({
+          record: { owner_id: ownerId, owner_email: ownerEmail, name: name, phone: phone, message: message }
+        })
       });
 
-      if (response.ok) {
-        modal.innerHTML = '<p style="color:#10b981; text-align:center; font-weight:700; margin:20px 0; font-size:15px;">Message sent successfully! ✓</p>';
-        setTimeout(() => { modal.style.display = 'none'; }, 2000);
-      } else {
-        throw new Error('Failed to send');
-      }
+      modal.innerHTML = '<p style="color:#10b981; text-align:center; font-weight:700; margin:20px 0; font-size:15px;">Message sent successfully! ✓</p>';
+      setTimeout(() => { modal.style.display = 'none'; }, 2000);
     } catch (err) {
       alert('Error sending message. Please try again.');
       submitBtn.innerText = 'Send Message';
@@ -117,3 +119,4 @@
     }
   };
 })();
+                           
