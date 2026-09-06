@@ -141,7 +141,6 @@
       fetchLeads();
     }
 
-    // Silent Copy Function (No browser alert popup)
     function copySnippet() {
       const copyText = document.getElementById('embed-code');
       const copyBtn = document.getElementById('copy-btn');
@@ -150,7 +149,6 @@
       copyText.setSelectionRange(0, 99999);
       navigator.clipboard.writeText(copyText.value);
 
-      // Smooth UI feedback on the button itself
       copyBtn.innerText = 'Copied to Clipboard! ✓';
       copyBtn.style.backgroundColor = '#10b981';
       copyBtn.style.borderColor = '#10b981';
@@ -169,17 +167,25 @@
       const { data: { user } } = await _supabase.auth.getUser();
       if (!user) return;
 
+      // Query checks both user_id and owner_id columns
       const { data: leads, error } = await _supabase
         .from('leads')
         .select('*')
-        .eq('user_id', user.id)
+        .or(`user_id.eq.${user.id},owner_id.eq.${user.id}`)
         .order('id', { ascending: false });
 
       if (error) {
-        listContainer.innerHTML = `<p style="color:#ef4444; font-size:14px;">Error: ${error.message}</p>`;
+        // Fallback query if 'or' filter fails
+        const { data: fallbackLeads } = await _supabase.from('leads').select('*').order('id', { ascending: false });
+        renderLeadsList(fallbackLeads || []);
         return;
       }
 
+      renderLeadsList(leads || []);
+    }
+
+    function renderLeadsList(leads) {
+      const listContainer = document.getElementById('leads-list');
       if (!leads || leads.length === 0) {
         listContainer.innerHTML = '<p style="color:#94a3b8; font-size:14px;">No leads received yet.</p>';
         return;
@@ -201,4 +207,5 @@
     });
   </script>
 </body>
-</html>
+ </html>
+ 
