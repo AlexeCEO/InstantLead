@@ -8,7 +8,6 @@
     return;
   }
 
-  // Load Supabase SDK dynamically if not present
   if (!window.supabase) {
     const supabaseScript = document.createElement('script');
     supabaseScript.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
@@ -69,6 +68,7 @@
     </div>
     <form id="instant-lead-form" style="margin:0;">
       <input type="text" id="lead-name" placeholder="Your Name" required style="width:100%; background:#0a0e17; border:1px solid #1e293b; color:#fff; padding:12px; margin-bottom:10px; border-radius:8px; box-sizing:border-box; font-size:14px; outline:none;">
+      <input type="email" id="lead-email" placeholder="Your Email Address" required style="width:100%; background:#0a0e17; border:1px solid #1e293b; color:#fff; padding:12px; margin-bottom:10px; border-radius:8px; box-sizing:border-box; font-size:14px; outline:none;">
       <input type="tel" id="lead-phone" placeholder="Phone Number" required style="width:100%; background:#0a0e17; border:1px solid #1e293b; color:#fff; padding:12px; margin-bottom:10px; border-radius:8px; box-sizing:border-box; font-size:14px; outline:none;">
       <textarea id="lead-msg" placeholder="How can we help?" style="width:100%; background:#0a0e17; border:1px solid #1e293b; color:#fff; padding:12px; margin-bottom:14px; border-radius:8px; box-sizing:border-box; font-size:14px; height:70px; resize:none; outline:none;"></textarea>
       <button type="submit" id="lead-submit-btn" style="width:100%; background:#2563eb; color:white; border:none; padding:12px; border-radius:8px; font-weight:700; cursor:pointer; font-size:14px; transition:0.2s;">Send Message</button>
@@ -91,22 +91,30 @@
     submitBtn.disabled = true;
 
     const name = document.getElementById('lead-name').value;
+    const customerEmail = document.getElementById('lead-email').value;
     const phone = document.getElementById('lead-phone').value;
     const message = document.getElementById('lead-msg').value;
 
     try {
-      // 1. Direct write to Supabase Database
+      // 1. Direct write to Supabase
       if (window.supabase) {
         const _sp = window.supabase.createClient('https://waatnxffylvlfqtlznzv.supabase.co', 'sb_publishable_WeghbAEB6DM-UBxu9W61tw_rqHWNd-J');
-        await _sp.from('leads').insert([{ user_id: ownerId, name: name, phone: phone, message: message }]);
+        await _sp.from('leads').insert([{ user_id: ownerId, name: name, email: customerEmail, phone: phone, message: message }]);
       }
 
-      // 2. Dispatch payload to Pipedream for instant Gmail notification
+      // 2. Send payload to Pipedream
       await fetch('https://eolw5rybnknsl67.m.pipedream.net', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          record: { owner_id: ownerId, owner_email: ownerEmail, name: name, phone: phone, message: message }
+          record: {
+            owner_id: ownerId,
+            owner_email: ownerEmail,
+            customer_name: name,
+            customer_email: customerEmail,
+            customer_phone: phone,
+            message: message
+          }
         })
       });
 
@@ -119,4 +127,4 @@
     }
   };
 })();
-                           
+   
