@@ -1,17 +1,10 @@
  (function () {
   const scriptTag = document.currentScript || document.querySelector('script[data-owner-id]');
   const ownerId = scriptTag ? scriptTag.getAttribute('data-owner-id') : '536bde32-496b-4e6e-a34a-1abdb387dd5b';
-  const ownerEmail = scriptTag ? scriptTag.getAttribute('data-owner-email') : null;
 
   if (!ownerId) {
     console.error('InstantLead Widget: Missing data-owner-id attribute.');
     return;
-  }
-
-  if (!window.supabase) {
-    const supabaseScript = document.createElement('script');
-    supabaseScript.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
-    document.head.appendChild(supabaseScript);
   }
 
   // Floating Trigger Button
@@ -67,11 +60,11 @@
       <span id="close-modal" style="cursor:pointer; font-size:18px; color:#94a3b8; padding:2px 6px; line-height:1;">✕</span>
     </div>
     <form id="instant-lead-form" style="margin:0;">
-      <input type="text" id="lead-name" placeholder="Your Name" required style="width:100%; background:#0a0e17; border:1px solid #1e293b; color:#fff; padding:12px; margin-bottom:10px; border-radius:8px; box-sizing:border-box; font-size:14px; outline:none;">
-      <input type="email" id="lead-email" placeholder="Your Email Address" required style="width:100%; background:#0a0e17; border:1px solid #1e293b; color:#fff; padding:12px; margin-bottom:10px; border-radius:8px; box-sizing:border-box; font-size:14px; outline:none;">
-      <input type="tel" id="lead-phone" placeholder="Phone Number" required style="width:100%; background:#0a0e17; border:1px solid #1e293b; color:#fff; padding:12px; margin-bottom:10px; border-radius:8px; box-sizing:border-box; font-size:14px; outline:none;">
-      <textarea id="lead-msg" placeholder="How can we help?" style="width:100%; background:#0a0e17; border:1px solid #1e293b; color:#fff; padding:12px; margin-bottom:14px; border-radius:8px; box-sizing:border-box; font-size:14px; height:70px; resize:none; outline:none;"></textarea>
-      <button type="submit" id="lead-submit-btn" style="width:100%; background:#2563eb; color:white; border:none; padding:12px; border-radius:8px; font-weight:700; cursor:pointer; font-size:14px; transition:0.2s;">Send Message</button>
+      <input type="text" id="il-name" placeholder="Your Name" required style="width:100%; background:#0a0e17; border:1px solid #1e293b; color:#fff; padding:12px; margin-bottom:10px; border-radius:8px; box-sizing:border-box; font-size:14px; outline:none;">
+      <input type="email" id="il-email" placeholder="Your Email Address" required style="width:100%; background:#0a0e17; border:1px solid #1e293b; color:#fff; padding:12px; margin-bottom:10px; border-radius:8px; box-sizing:border-box; font-size:14px; outline:none;">
+      <input type="tel" id="il-phone" placeholder="Phone Number" required style="width:100%; background:#0a0e17; border:1px solid #1e293b; color:#fff; padding:12px; margin-bottom:10px; border-radius:8px; box-sizing:border-box; font-size:14px; outline:none;">
+      <textarea id="il-msg" placeholder="How can we help?" style="width:100%; background:#0a0e17; border:1px solid #1e293b; color:#fff; padding:12px; margin-bottom:14px; border-radius:8px; box-sizing:border-box; font-size:14px; height:70px; resize:none; outline:none;"></textarea>
+      <button type="submit" id="il-submit-btn" style="width:100%; background:#2563eb; color:white; border:none; padding:12px; border-radius:8px; font-weight:700; cursor:pointer; font-size:14px; transition:0.2s;">Send Message</button>
     </form>
   `;
   document.body.appendChild(modal);
@@ -86,14 +79,14 @@
 
   document.getElementById('instant-lead-form').onsubmit = async (e) => {
     e.preventDefault();
-    const submitBtn = document.getElementById('lead-submit-btn');
+    const submitBtn = document.getElementById('il-submit-btn');
     submitBtn.innerText = 'Sending...';
     submitBtn.disabled = true;
 
-    const name = document.getElementById('lead-name').value;
-    const customerEmail = document.getElementById('lead-email').value;
-    const phone = document.getElementById('lead-phone').value;
-    const message = document.getElementById('lead-msg').value;
+    const nameVal = document.getElementById('il-name').value;
+    const emailVal = document.getElementById('il-email').value;
+    const phoneVal = document.getElementById('il-phone').value;
+    const messageVal = document.getElementById('il-msg').value;
 
     try {
       const response = await fetch("https://waatnxffylvlfqtlznzv.supabase.co/rest/v1/leads", {
@@ -107,10 +100,10 @@
         body: JSON.stringify({
           owner_id: ownerId,
           user_id: ownerId,
-          name: name,
-          email: customerEmail,
-          phone: phone,
-          message: message
+          name: nameVal,
+          email: emailVal,
+          phone: phoneVal,
+          message: messageVal
         })
       });
 
@@ -129,4 +122,3 @@
     }
   };
 })();
-         
