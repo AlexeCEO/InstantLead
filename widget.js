@@ -1,6 +1,6 @@
  (function () {
   const scriptTag = document.currentScript || document.querySelector('script[data-owner-id]');
-  const ownerId = scriptTag ? scriptTag.getAttribute('data-owner-id') : null;
+  const ownerId = scriptTag ? scriptTag.getAttribute('data-owner-id') : '536bde32-496b-4e6e-a34a-1abdb387dd5b';
   const ownerEmail = scriptTag ? scriptTag.getAttribute('data-owner-email') : null;
 
   if (!ownerId) {
@@ -96,27 +96,28 @@
     const message = document.getElementById('lead-msg').value;
 
     try {
-      // 1. Direct write to Supabase
-      if (window.supabase) {
-        const _sp = window.supabase.createClient('https://waatnxffylvlfqtlznzv.supabase.co', 'sb_publishable_WeghbAEB6DM-UBxu9W61tw_rqHWNd-J');
-        await _sp.from('leads').insert([{ user_id: ownerId, name: name, email: customerEmail, phone: phone, message: message }]);
-      }
-
-      // 2. Send payload to Pipedream
-      await fetch('https://eolw5rybnknsl67.m.pipedream.net', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      // Direct REST fallback or Supabase client write using correct column names
+      const response = await fetch("https://waatnxffylvlfqtlznzv.supabase.co/rest/v1/leads", {
+        method: "POST",
+        headers: {
+          "apikey": "sb_publishable_WeghbAEB6DM-UBxu9W61tw_rqHWNd-J",
+          "Authorization": "Bearer sb_publishable_WeghbAEB6DM-UBxu9W61tw_rqHWNd-J",
+          "Content-Type": "application/json",
+          "Prefer": "return=representation"
+        },
         body: JSON.stringify({
-          record: {
-            owner_id: ownerId,
-            owner_email: ownerEmail,
-            customer_name: name,
-            customer_email: customerEmail,
-            customer_phone: phone,
-            message: message
-          }
+          owner_id: ownerId,
+          user_id: ownerId,
+          name: name,
+          customer_email: customerEmail,
+          phone: phone,
+          message: message
         })
       });
+
+      if (!response.ok) {
+        throw new Error('Failed to insert lead into database');
+      }
 
       modal.innerHTML = '<p style="color:#10b981; text-align:center; font-weight:700; margin:20px 0; font-size:15px;">Message sent successfully! ✓</p>';
       setTimeout(() => { modal.style.display = 'none'; }, 2000);
@@ -127,4 +128,3 @@
     }
   };
 })();
-   
