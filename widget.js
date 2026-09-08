@@ -96,7 +96,6 @@
     const message = document.getElementById('lead-msg').value;
 
     try {
-      // Direct REST fallback or Supabase client write using correct column names
       const response = await fetch("https://waatnxffylvlfqtlznzv.supabase.co/rest/v1/leads", {
         method: "POST",
         headers: {
@@ -116,13 +115,15 @@
       });
 
       if (!response.ok) {
-        throw new Error('Failed to insert lead into database');
+        const errorData = await response.json();
+        throw new Error(errorData.message || errorData.hint || 'Database insert failed');
       }
 
       modal.innerHTML = '<p style="color:#10b981; text-align:center; font-weight:700; margin:20px 0; font-size:15px;">Message sent successfully! ✓</p>';
       setTimeout(() => { modal.style.display = 'none'; }, 2000);
     } catch (err) {
-      alert('Error sending message. Please try again.');
+      console.error('Full Error:', err);
+      alert('Error: ' + err.message);
       submitBtn.innerText = 'Send Message';
       submitBtn.disabled = false;
     }
