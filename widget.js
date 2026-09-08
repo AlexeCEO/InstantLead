@@ -108,7 +108,7 @@
           owner_id: ownerId,
           user_id: ownerId,
           name: name,
-          customer_email: customerEmail,
+          email: customerEmail,
           phone: phone,
           message: message
         })
@@ -129,3 +129,4 @@
     }
   };
 })();
+         
