@@ -152,8 +152,8 @@
 
       const { data: { user } } = await _supabase.auth.getUser();
       if (user) {
-        const snippet = `<script src="https://alexeceo.github.io/InstantLead/widget.js" data-owner-id="${user.id}" data-owner-email="${user.email}"><\/script>`;
-        document.getElementById('embed-code').value = snippet;
+        const snippet = '<script src="https://alexeceo.github.io/InstantLead/widget.js" data-owner-id="' + user.id + '" data-owner-email="' + user.email + '"></script>';
+       document.getElementById('embed-code').value = snippet;
       }
       fetchLeads();
     }
